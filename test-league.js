@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),D=require('./data'),E=require('./engine');
 let stats={histories:500,gym:0,awards:0,rematches:0,rival:0,league:0,champions:0,turnDuels:0},sample;
-for(const g of D.gyms)for(const id of g.team)assert.equal(D.species[id].type,g.type);
+for(const g of D.gyms)for(const id of g.team)assert(D.species[id].types.includes(g.type),D.species[id].name+' / '+g.type);
 for(let i=0;i<stats.histories;i++){
  const input={name:'Liga '+i,birth:'1980-01-01',cityId:D.cities[i%10].id,personality:'competitive',asOf:'2026-11-25'},s=E.simulate(input);let badgeIds=new Set(),attempts={},rivalRec={},leagueStage=0;
  for(let e of s.events){let b=e.battle;if(b){
