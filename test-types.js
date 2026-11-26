@@ -1,0 +1,3 @@
+const A=require('node:assert/strict'),D=require('./data'),E=require('./engine');
+for(const p of Object.values(D.species)){A(p.types.length>=1&&p.types.length<=2);A.equal(p.type,p.types[0]);}
+A.deepEqual(D.species[133].types,['normal']);A.deepEqual(D.species[136].types,['fogo']);A.deepEqual(D.species[6].types,['fogo','voador']);A.deepEqual(D.species[130].types,['água','voador']);A.deepEqual(D.species[10104].types,['gelo','fada']);A.equal(E.typeEffect('elétrico',D.species[130]),4);A.equal(E.typeEffect('terra',D.species[6]),0);A.equal(E.typeEffect('pedra',D.species[6]),4);A.equal(E.typeEffect('fogo',D.species[130]),.5);console.log('Tipagem OK');
