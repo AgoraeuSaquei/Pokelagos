@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),D=require('./data'),E=require('./engine');
+let count=0,shiny=0,legend=0,captures=0,evolutions=0,linked=0,zero=0,max=0;
+for(const [id,targets] of Object.entries(D.edges)){assert(D.species[id],`Origem inválida ${id}`);for(const t of targets)assert(D.species[t],`Destino inválido ${t}`)}
+for(const c of D.cities)assert.equal(Object.values(c.weights).reduce((a,b)=>a+b,0),100);
+for(let i=0;i<1000;i++){
+ let inp={name:'Pessoa '+i,birth:`${1970+i%40}-${String(i%12+1).padStart(2,'0')}-${String(i%28+1).padStart(2,'0')}`,cityId:D.cities[i%10].id,asOf:'2026-11-25'};let a=E.simulate(inp),b=E.simulate({...inp,asOf:'2030-11-25'});assert.deepEqual(a.events,b.events.filter(e=>e.date<=inp.asOf));assert(a.pokemon.filter(p=>p.status==='active').length<=6);assert(a.events.every((e,j)=>e.date<=inp.asOf&&(!j||e.date>=a.events[j-1].date)));assert(a.events.every(e=>!e.source||a.events.some(x=>x.id===e.source&&x.date<=e.date)));assert(a.pokemon.every(p=>D.species[p.id]&&p.evolutions.every(ev=>D.edges[ev.from]?.includes(ev.to)&&ev.date>=p.obtained)));assert.equal(a.encounters,Object.values(a.seen).reduce((s,p)=>s+p.count,0));assert.equal(a.shinySeen,Object.values(a.seen).reduce((s,p)=>s+p.shiny,0));assert.equal(a.events.length,E.simulate(inp).events.length);if(i<3)assert.deepEqual(a,E.simulate(inp));count++;shiny+=a.shinySeen;legend+=a.legendSeen;captures+=a.pokemon.length;evolutions+=a.pokemon.reduce((s,p)=>s+p.evolutions.length,0);linked+=a.events.filter(e=>e.source).length;zero+=a.pokemon.length===0;max=Math.max(max,a.pokemon.length);
+}
+for(const birth of ['2026-11-25','2024-02-29','2018-11-25','1900-01-01']){let s=E.simulate({name:'Idade limite',birth,cityId:'buzios',asOf:'2026-11-25'});assert(s.events.length>0);assert(s.events.every(e=>e.date<=s.asOf));if(s.age<5)assert.equal(s.pokemon.length,0)}
+assert.equal(E.ageAt('2000-02-29','2025-02-27'),24);assert.equal(E.ageAt('2000-02-29','2025-02-28'),25);
+assert.throws(()=>E.simulate({name:'A',birth:'2027-01-01',cityId:'buzios',asOf:'2026-11-25'}));assert.throws(()=>E.simulate({name:'A',birth:'2000-02-30',cityId:'buzios',asOf:'2026-11-25'}));
+console.log(JSON.stringify({historias:count,shiny,legend,captures,evolutions,linked,zero,max,mediaCapturas:captures/count},null,2));
